@@ -1,0 +1,15 @@
+version: '3'
+services:
+  lsquad_postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - lsquad-postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=lsquad
+      - POSTGRES_PASSWORD=lsquad
+      - POSTGRES_USER=lsquad
+
+volumes:
+  lsquad-postgres-data:
