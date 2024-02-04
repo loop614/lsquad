@@ -7,11 +7,7 @@ using Lsquad.Squad;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddNewtonsoftJson();
 var app = builder.Build();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Squad}/{action=Squad}"
-);
+app.MapControllers();
 
 var settingsSql = builder.Configuration.GetSection("Sql").Get<LsquadSqlSettings>();
 if (settingsSql is null) {
