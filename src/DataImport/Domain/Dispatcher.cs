@@ -8,50 +8,44 @@ using Lsquad.TeamName.Transfer;
 
 namespace Lsquad.DataImport.Domain;
 
-public class Dispatcher : IDispatcher
+public class Dispatcher(
+    ILanguageService languageService,
+    ITeamService teamService,
+    IPlayerService playerService
+) : IDispatcher
 {
-    private readonly ILanguageService _languageService;
+    private static List<PlayerTransfer> playerEntitiesCache = [];
 
-    private readonly ITeamService _teamService;
+    private static List<PlayerTransfer> playerEntitiesWithExternalIdCache = [];
 
-    private readonly IPlayerService _playerService;
-
-    private static List<PlayerTransfer> _playerEntitiesCache = [];
-
-    private static List<PlayerTransfer> _playerEntitiesWithExternalIdCache = [];
-
-    private static List<TeamTransfer> _teamEntitiesWithExternalIdCache = [];
-
-    public Dispatcher(
-        ILanguageService languageService,
-        ITeamService teamService,
-        IPlayerService playerService
-    ) {
-        _languageService = languageService;
-        _teamService = teamService;
-        _playerService = playerService;
-    }
+    private static List<TeamTransfer> teamEntitiesWithExternalIdCache = [];
 
     public void Dispatch(BrDomainPlayer brDomainPlayer)
     {
-        List<string> langs = new();
-        if (brDomainPlayer.names is null) {return;}
+        List<string> langs = [];
+        if (brDomainPlayer.names is null) { return; }
         double version = brDomainPlayer.version;
-        foreach(BrDomainPlayerNameStat stat in brDomainPlayer.names.stats) {
-            if (stat.lang is not null) {
+        foreach (BrDomainPlayerNameStat stat in brDomainPlayer.names.stats)
+        {
+            if (stat.lang is not null)
+            {
                 langs.Add(stat.lang);
             }
         }
-        foreach(BrDomainPlayerNameLiveScore livescore in brDomainPlayer.names.livescore) {
-            if (livescore.lang is not null) {
+        foreach (BrDomainPlayerNameLiveScore livescore in brDomainPlayer.names.livescore)
+        {
+            if (livescore.lang is not null)
+            {
                 langs.Add(livescore.lang);
             }
         }
-        Dictionary<string, int> languageNameToId = _languageService.GetOrCreate(langs);
+        Dictionary<string, int> languageNameToId = languageService.GetOrCreate(langs);
         PlayerTransfer playerTransfer = new() { external_player_id = brDomainPlayer.id };
 
-        foreach (BrDomainPlayerNameStat stat in brDomainPlayer.names.stats) {
-            if (stat.lang is null || stat.name is null || !languageNameToId.ContainsKey(stat.lang)) {
+        foreach (BrDomainPlayerNameStat stat in brDomainPlayer.names.stats)
+        {
+            if (stat.lang is null || stat.name is null || !languageNameToId.ContainsKey(stat.lang))
+            {
                 continue;
             }
             var playerNameEntity = new PlayerNameTransfer
@@ -63,8 +57,10 @@ public class Dispatcher : IDispatcher
             playerTransfer.playerNameEntities.Add(playerNameEntity);
         }
 
-        foreach(BrDomainPlayerNameLiveScore livescore in brDomainPlayer.names.livescore) {
-            if (livescore.lang is null || livescore.name is null || !languageNameToId.ContainsKey(livescore.lang)) {
+        foreach (BrDomainPlayerNameLiveScore livescore in brDomainPlayer.names.livescore)
+        {
+            if (livescore.lang is null || livescore.name is null || !languageNameToId.ContainsKey(livescore.lang))
+            {
                 continue;
             }
             var playerNameEntity = new PlayerNameTransfer
@@ -76,21 +72,24 @@ public class Dispatcher : IDispatcher
             playerTransfer.playerNameEntities.Add(playerNameEntity);
         }
 
-        _playerEntitiesWithExternalIdCache.Add(playerTransfer);
-        if (_playerEntitiesWithExternalIdCache.Count > 100) {
+        playerEntitiesWithExternalIdCache.Add(playerTransfer);
+        if (playerEntitiesWithExternalIdCache.Count > 100)
+        {
             FlushCache("br_domain_player");
         }
     }
 
     public void Dispatch(BrDomainSquad brDomainSquad)
     {
-        TeamTransfer teamEntity = new() { externalTeamId = brDomainSquad.team_id};
-        teamEntity = _teamService.CreateOrUpdateByExternalTeamId(teamEntity);
+        TeamTransfer teamEntity = new() { external_team_id = brDomainSquad.team_id };
+        teamEntity = teamService.CreateOrUpdateByExternalTeamId(teamEntity);
         List<PlayerTransfer> playerEntities = [];
-        foreach(BrDomainSquadPlayer player in brDomainSquad.players) {
+        foreach (BrDomainSquadPlayer player in brDomainSquad.players)
+        {
             if (player.player_id is null) continue;
             DateTime? birthDateParsed = null;
-            if (DateTime.TryParse(player.birth_date, out DateTime birthDate)) {
+            if (DateTime.TryParse(player.birth_date, out DateTime birthDate))
+            {
                 birthDateParsed = birthDate;
             }
             var playerTransfer = new PlayerTransfer
@@ -101,7 +100,7 @@ public class Dispatcher : IDispatcher
                 shirt_number = player.shirt_number,
                 preferred_foot = player.preferred_foot,
                 position = player.position,
-                external_player_id = (int) player.player_id,
+                external_player_id = (int)player.player_id,
                 last_name = player.last_name,
                 height = player.height,
                 full_name = player.full_name,
@@ -113,8 +112,9 @@ public class Dispatcher : IDispatcher
             playerEntities.Add(playerTransfer);
         }
 
-        _playerEntitiesCache.AddRange(playerEntities);
-        if (_playerEntitiesCache.Count > 200) {
+        playerEntitiesCache.AddRange(playerEntities);
+        if (playerEntitiesCache.Count > 200)
+        {
             FlushCache("br_domain_squad");
         }
     }
@@ -122,23 +122,29 @@ public class Dispatcher : IDispatcher
     public void Dispatch(BrDomainTeam brDomainTeam)
     {
         List<string> langs = new();
-        if (brDomainTeam.names is null) {return;}
+        if (brDomainTeam.names is null) { return; }
         double version = brDomainTeam.version;
-        foreach(BrDomainTeamNameStat stat in brDomainTeam.names.stats) {
-            if (stat.lang is not null) {
+        foreach (BrDomainTeamNameStat stat in brDomainTeam.names.stats)
+        {
+            if (stat.lang is not null)
+            {
                 langs.Add(stat.lang);
             }
         }
-        foreach(BrDomainTeamNameLivescore stat in brDomainTeam.names.livescore) {
-            if (stat.lang is not null) {
+        foreach (BrDomainTeamNameLivescore stat in brDomainTeam.names.livescore)
+        {
+            if (stat.lang is not null)
+            {
                 langs.Add(stat.lang);
             }
         }
-        Dictionary<string, int> languageNameToId = _languageService.GetOrCreate(langs);
-        TeamTransfer teamEntity = new() { externalTeamId = brDomainTeam.id };
+        Dictionary<string, int> languageNameToId = languageService.GetOrCreate(langs);
+        TeamTransfer teamEntity = new() { external_team_id = brDomainTeam.id };
 
-        foreach (BrDomainTeamNameStat stat in brDomainTeam.names.stats) {
-            if (stat.lang is null || stat.name is null || !languageNameToId.ContainsKey(stat.lang)) {
+        foreach (BrDomainTeamNameStat stat in brDomainTeam.names.stats)
+        {
+            if (stat.lang is null || stat.name is null || !languageNameToId.ContainsKey(stat.lang))
+            {
                 continue;
             }
             var teamNameTransfer = new TeamNameTransfer
@@ -149,8 +155,10 @@ public class Dispatcher : IDispatcher
             };
             teamEntity.AddTeamNameTransfer(teamNameTransfer);
         }
-        foreach (BrDomainTeamNameLivescore livescore in brDomainTeam.names.livescore) {
-            if (livescore.lang is null || livescore.name is null || !languageNameToId.ContainsKey(livescore.lang)) {
+        foreach (BrDomainTeamNameLivescore livescore in brDomainTeam.names.livescore)
+        {
+            if (livescore.lang is null || livescore.name is null || !languageNameToId.ContainsKey(livescore.lang))
+            {
                 continue;
             }
             var teamNameTransfer = new TeamNameTransfer
@@ -162,8 +170,9 @@ public class Dispatcher : IDispatcher
             teamEntity.AddTeamNameTransfer(teamNameTransfer);
         }
 
-        _teamEntitiesWithExternalIdCache.Add(teamEntity);
-        if (_teamEntitiesWithExternalIdCache.Count > 100) {
+        teamEntitiesWithExternalIdCache.Add(teamEntity);
+        if (teamEntitiesWithExternalIdCache.Count > 100)
+        {
             FlushCache("br_domain_team");
         }
     }
@@ -173,18 +182,18 @@ public class Dispatcher : IDispatcher
         switch (topic)
         {
             case "br_domain_squad":
-                _playerService.CreateOrUpdate(_playerEntitiesCache);
-                _playerEntitiesCache = [];
+                playerService.CreateOrUpdate(playerEntitiesCache);
+                playerEntitiesCache = [];
                 break;
 
             case "br_domain_player":
-                _playerService.CreateOrUpdateWithExternalId(_playerEntitiesWithExternalIdCache);
-                _playerEntitiesWithExternalIdCache = [];
+                playerService.CreateOrUpdateWithExternalId(playerEntitiesWithExternalIdCache);
+                playerEntitiesWithExternalIdCache = [];
                 break;
 
             case "br_domain_team":
-                _teamService.CreateOrUpdateByExternalTeamId(_teamEntitiesWithExternalIdCache);
-                _teamEntitiesWithExternalIdCache = [];
+                teamService.CreateOrUpdateByExternalTeamId(teamEntitiesWithExternalIdCache);
+                teamEntitiesWithExternalIdCache = [];
                 break;
 
             default:

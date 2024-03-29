@@ -29,7 +29,7 @@ if (sqlConnection.State != System.Data.ConnectionState.Open)
     return;
 }
 
-// Restart database schema
+// TODO: remove, restart database schema
 await LsquadCoreDatabaseClean.DropTables(sqlConnection);
 await LsquadCoreDatabaseInit.InitTables(sqlConnection);
 

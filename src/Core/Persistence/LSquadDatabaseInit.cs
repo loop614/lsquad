@@ -41,12 +41,12 @@ class LsquadCoreDatabaseInit
             CREATE TABLE IF NOT EXISTS
             lsquad_team (
                 id_team serial PRIMARY KEY,
-                externalTeamId INTEGER NOT NULL,
-                UNIQUE(externalTeamId),
+                external_team_id INTEGER NOT NULL,
+                UNIQUE(external_team_id),
                 created_at timestamp DEFAULT now(),
                 updated_at timestamp
             );
-            CREATE INDEX IF NOT EXISTS idx_lsquad_player_externalTeamId ON lsquad_team(externalTeamId);
+            CREATE INDEX IF NOT EXISTS idx_lsquad_player_external_team_id ON lsquad_team(external_team_id);
 
             CREATE TABLE IF NOT EXISTS
             lsquad_team_name (

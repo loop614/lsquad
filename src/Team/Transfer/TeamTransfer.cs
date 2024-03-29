@@ -6,7 +6,7 @@ public class TeamTransfer
 {
     public int? id_team { get; set; }
 
-    public int externalTeamId { get; set; }
+    public int external_team_id { get; set; }
 
     public DateTime? created_at { get; set; }
 
