@@ -6,7 +6,7 @@ using Lsquad.Core.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddNewtonsoftJson();
-LsquadConfig.AddBuilderServices(builder);
+CoreConfig.AddBuilderServices(builder);
 
 // TODO: consider hangfire
 builder.Services.AddHostedService<LsquadStartupService>();

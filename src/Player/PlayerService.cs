@@ -5,14 +5,14 @@ namespace Lsquad.Player;
 
 public class PlayerService(IPlayerPersistence playerPersistence) : IPlayerService
 {
-    public void CreateOrUpdate(List<PlayerTransfer> playerEntities)
+    public void CreateOrUpdate(List<PlayerTransfer> playerTransfers)
     {
-        playerPersistence.CreateOrUpdate(playerEntities);
+        playerPersistence.CreateOrUpdate(playerTransfers);
     }
 
-    public void CreateOrUpdateWithExternalId(List<PlayerTransfer> playerEntities)
+    public void CreateOrUpdateWithExternalId(List<PlayerTransfer> playerTransfers)
     {
-        playerPersistence.CreateOrUpdateWithExternalId(playerEntities);
+        playerPersistence.CreateOrUpdateWithExternalId(playerTransfers);
     }
 
     public List<PlayerTransferWithName> GetPlayersBy(int idTeam, List<int> idLanguages)

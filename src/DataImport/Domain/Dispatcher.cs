@@ -14,11 +14,11 @@ public class Dispatcher(
     IPlayerService playerService
 ) : IDispatcher
 {
-    private static List<PlayerTransfer> playerEntitiesCache = [];
+    private static List<PlayerTransfer> playerTransfersCache = [];
 
-    private static List<PlayerTransfer> playerEntitiesWithExternalIdCache = [];
+    private static List<PlayerTransfer> playerTransfersWithExternalIdCache = [];
 
-    private static List<TeamTransfer> teamEntitiesWithExternalIdCache = [];
+    private static List<TeamTransfer> teamTransfersWithExternalIdCache = [];
 
     public void Dispatch(BrDomainPlayer brDomainPlayer)
     {
@@ -48,13 +48,13 @@ public class Dispatcher(
             {
                 continue;
             }
-            var playerNameEntity = new PlayerNameTransfer
+            var playerNameTransfer = new PlayerNameTransfer
             {
                 name = stat.name,
                 fk_language = languageNameToId[stat.lang],
                 version = version
             };
-            playerTransfer.playerNameEntities.Add(playerNameEntity);
+            playerTransfer.playerNameTransfers.Add(playerNameTransfer);
         }
 
         foreach (BrDomainPlayerNameLiveScore livescore in brDomainPlayer.names.livescore)
@@ -63,17 +63,17 @@ public class Dispatcher(
             {
                 continue;
             }
-            var playerNameEntity = new PlayerNameTransfer
+            var playerNameTransfer = new PlayerNameTransfer
             {
                 name = livescore.name,
                 fk_language = languageNameToId[livescore.lang],
                 version = version
             };
-            playerTransfer.playerNameEntities.Add(playerNameEntity);
+            playerTransfer.playerNameTransfers.Add(playerNameTransfer);
         }
 
-        playerEntitiesWithExternalIdCache.Add(playerTransfer);
-        if (playerEntitiesWithExternalIdCache.Count > 100)
+        playerTransfersWithExternalIdCache.Add(playerTransfer);
+        if (playerTransfersWithExternalIdCache.Count > 100)
         {
             FlushCache("br_domain_player");
         }
@@ -81,9 +81,9 @@ public class Dispatcher(
 
     public void Dispatch(BrDomainSquad brDomainSquad)
     {
-        TeamTransfer teamEntity = new() { external_team_id = brDomainSquad.team_id };
-        teamEntity = teamService.CreateOrUpdateByExternalTeamId(teamEntity);
-        List<PlayerTransfer> playerEntities = [];
+        TeamTransfer teamTransfer = new() { external_team_id = brDomainSquad.team_id };
+        teamTransfer = teamService.CreateOrUpdateByExternalTeamId(teamTransfer);
+        List<PlayerTransfer> playerTransfers = [];
         foreach (BrDomainSquadPlayer player in brDomainSquad.players)
         {
             if (player.player_id is null) continue;
@@ -94,7 +94,7 @@ public class Dispatcher(
             }
             var playerTransfer = new PlayerTransfer
             {
-                fk_team = teamEntity.id_team,
+                fk_team = teamTransfer.id_team,
                 version = brDomainSquad.version,
                 weight = player.weight,
                 shirt_number = player.shirt_number,
@@ -109,11 +109,11 @@ public class Dispatcher(
                 birth_date = birthDateParsed,
             };
 
-            playerEntities.Add(playerTransfer);
+            playerTransfers.Add(playerTransfer);
         }
 
-        playerEntitiesCache.AddRange(playerEntities);
-        if (playerEntitiesCache.Count > 200)
+        playerTransfersCache.AddRange(playerTransfers);
+        if (playerTransfersCache.Count > 200)
         {
             FlushCache("br_domain_squad");
         }
@@ -121,7 +121,7 @@ public class Dispatcher(
 
     public void Dispatch(BrDomainTeam brDomainTeam)
     {
-        List<string> langs = new();
+        List<string> langs = [];
         if (brDomainTeam.names is null) { return; }
         double version = brDomainTeam.version;
         foreach (BrDomainTeamNameStat stat in brDomainTeam.names.stats)
@@ -139,7 +139,7 @@ public class Dispatcher(
             }
         }
         Dictionary<string, int> languageNameToId = languageService.GetOrCreate(langs);
-        TeamTransfer teamEntity = new() { external_team_id = brDomainTeam.id };
+        TeamTransfer teamTransfer = new() { external_team_id = brDomainTeam.id };
 
         foreach (BrDomainTeamNameStat stat in brDomainTeam.names.stats)
         {
@@ -153,7 +153,7 @@ public class Dispatcher(
                 fk_language = languageNameToId[stat.lang],
                 version = version
             };
-            teamEntity.AddTeamNameTransfer(teamNameTransfer);
+            teamTransfer.AddTeamNameTransfer(teamNameTransfer);
         }
         foreach (BrDomainTeamNameLivescore livescore in brDomainTeam.names.livescore)
         {
@@ -167,11 +167,11 @@ public class Dispatcher(
                 fk_language = languageNameToId[livescore.lang],
                 version = version
             };
-            teamEntity.AddTeamNameTransfer(teamNameTransfer);
+            teamTransfer.AddTeamNameTransfer(teamNameTransfer);
         }
 
-        teamEntitiesWithExternalIdCache.Add(teamEntity);
-        if (teamEntitiesWithExternalIdCache.Count > 100)
+        teamTransfersWithExternalIdCache.Add(teamTransfer);
+        if (teamTransfersWithExternalIdCache.Count > 100)
         {
             FlushCache("br_domain_team");
         }
@@ -182,18 +182,18 @@ public class Dispatcher(
         switch (topic)
         {
             case "br_domain_squad":
-                playerService.CreateOrUpdate(playerEntitiesCache);
-                playerEntitiesCache = [];
+                playerService.CreateOrUpdate(playerTransfersCache);
+                playerTransfersCache = [];
                 break;
 
             case "br_domain_player":
-                playerService.CreateOrUpdateWithExternalId(playerEntitiesWithExternalIdCache);
-                playerEntitiesWithExternalIdCache = [];
+                playerService.CreateOrUpdateWithExternalId(playerTransfersWithExternalIdCache);
+                playerTransfersWithExternalIdCache = [];
                 break;
 
             case "br_domain_team":
-                teamService.CreateOrUpdateByExternalTeamId(teamEntitiesWithExternalIdCache);
-                teamEntitiesWithExternalIdCache = [];
+                teamService.CreateOrUpdateByExternalTeamId(teamTransfersWithExternalIdCache);
+                teamTransfersWithExternalIdCache = [];
                 break;
 
             default:

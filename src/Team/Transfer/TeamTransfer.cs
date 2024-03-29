@@ -12,13 +12,13 @@ public class TeamTransfer
 
     public DateTime? updated_at { get; set; }
 
-    public List<TeamNameTransfer> teamNameEntities = [];
+    public List<TeamNameTransfer> teamNameTransfers = [];
 
     public void AddTeamNameTransfer(TeamNameTransfer newTeamNameTransfer)
     {
-        if (teamNameEntities is null) {
-            teamNameEntities = [];
+        if (teamNameTransfers is null) {
+            teamNameTransfers = [];
         }
-        teamNameEntities.Add(newTeamNameTransfer);
+        teamNameTransfers.Add(newTeamNameTransfer);
     }
 }

@@ -25,26 +25,26 @@ public class SquadReader(
         }
         squadResponse.team = new() { id = externalTeamId, name = GetTeamName(teamIdNames, langNameToId, lang) };
 
-        List<PlayerTransferWithName> playerEntities = playerService.GetPlayersBy(teamIdNames[0].id_team, langNameToId.Values.ToList());
-        Dictionary<int, Dictionary<int, PlayerTransferWithName>> idToPlayerEntities = [];
-        foreach (PlayerTransferWithName pewn in playerEntities)
+        List<PlayerTransferWithName> playerTransfers = playerService.GetPlayersBy(teamIdNames[0].id_team, langNameToId.Values.ToList());
+        Dictionary<int, Dictionary<int, PlayerTransferWithName>> idToPlayerTransfers = new();
+        foreach (PlayerTransferWithName pewn in playerTransfers)
         {
-            if (!idToPlayerEntities.ContainsKey(pewn.id_player))
+            if (!idToPlayerTransfers.ContainsKey(pewn.id_player))
             {
-                idToPlayerEntities[pewn.id_player] = [];
+                idToPlayerTransfers[pewn.id_player] = [];
             }
 
-            idToPlayerEntities[pewn.id_player][pewn.name_fk_language] = pewn;
+            idToPlayerTransfers[pewn.id_player][pewn.name_fk_language] = pewn;
         }
 
-        squadResponse.players = TakePlayerEntities(idToPlayerEntities, langNameToId, lang);
+        squadResponse.players = TakePlayerTransfers(idToPlayerTransfers, langNameToId, lang);
 
         return squadResponse;
     }
 
     private string GetTeamName(List<TeamIdName> teamIdNames, Dictionary<string, int> langNameToId, string lang)
     {
-        Dictionary<int, string> languageToTeamName = [];
+        Dictionary<int, string> languageToTeamName = new();
         foreach (TeamIdName teamIdName in teamIdNames)
         {
             if (teamIdName.name is null) { continue; }
@@ -59,14 +59,14 @@ public class SquadReader(
         return languageToTeamName[langNameToId["en"]];
     }
 
-    private List<SquadResponsePlayer> TakePlayerEntities(
-        Dictionary<int, Dictionary<int, PlayerTransferWithName>> idToPlayerEntities,
+    private List<SquadResponsePlayer> TakePlayerTransfers(
+        Dictionary<int, Dictionary<int, PlayerTransferWithName>> idToPlayerTransfers,
         Dictionary<string, int> langNameToId,
         string lang
     )
     {
         List<SquadResponsePlayer> srpl = [];
-        foreach (Dictionary<int, PlayerTransferWithName> fkLangToPlayerTransfer in idToPlayerEntities.Values)
+        foreach (Dictionary<int, PlayerTransferWithName> fkLangToPlayerTransfer in idToPlayerTransfers.Values)
         {
             PlayerTransferWithName usedPlayerTransfer;
             if (langNameToId.ContainsKey(lang) && fkLangToPlayerTransfer.TryGetValue(langNameToId[lang], out PlayerTransferWithName? value))

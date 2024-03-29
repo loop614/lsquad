@@ -5,14 +5,14 @@ namespace Lsquad.Team;
 
 public class TeamService(ITeamPersistence teamPersistence) : ITeamService
 {
-    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamEntities)
+    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamTransfers)
     {
-        teamPersistence.CreateOrUpdateByExternalTeamId(teamEntities);
+        teamPersistence.CreateOrUpdateByExternalTeamId(teamTransfers);
     }
 
-    public TeamTransfer CreateOrUpdateByExternalTeamId(TeamTransfer teamEntity)
+    public TeamTransfer CreateOrUpdateByExternalTeamId(TeamTransfer teamTransfer)
     {
-        return teamPersistence.CreateOrUpdateByExternalTeamId(teamEntity);
+        return teamPersistence.CreateOrUpdateByExternalTeamId(teamTransfer);
     }
 
     public List<TeamIdName> GetTeamIdNameBy(int externalTeamId, List<int> idLanguages)

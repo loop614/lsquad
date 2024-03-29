@@ -9,7 +9,7 @@ using Lsquad.TeamName;
 
 namespace Lsquad.Core;
 
-public static class LsquadConfig
+public static class CoreConfig
 {
     public static void AddBuilderServices(WebApplicationBuilder builder)
     {

@@ -6,11 +6,11 @@ namespace Lsquad.Language.Persistence;
 
 public class LanguagePersistence : LsquadPersistence, ILanguagePersistence
 {
-    private static Dictionary<string, int> LanguagesCache = [];
+    private static Dictionary<string, int> LanguagesCache = new();
 
     public Dictionary<string, int> GetOrCreate(List<string> langs)
     {
-        Dictionary<string, int> languageNameToId = [];
+        Dictionary<string, int> languageNameToId = new();
         List<string> langsToAdd = [];
         foreach(string lang in langs) {
             if (LanguagesCache.Keys.Contains(lang)) {
@@ -23,10 +23,10 @@ public class LanguagePersistence : LsquadPersistence, ILanguagePersistence
             return languageNameToId;
         }
 
-        List<LanguageEntity> languageEntities = CreateOrUpdateLanguagesByName(langsToAdd);
-        foreach(LanguageEntity languageEntity in languageEntities) {
-            languageNameToId[languageEntity.name] = languageEntity.id_language;
-            LanguagesCache[languageEntity.name] = languageEntity.id_language;
+        List<LanguageTransfer> languageTransfers = CreateOrUpdateLanguagesByName(langsToAdd);
+        foreach(LanguageTransfer languageTransfer in languageTransfers) {
+            languageNameToId[languageTransfer.name] = languageTransfer.id_language;
+            LanguagesCache[languageTransfer.name] = languageTransfer.id_language;
         }
 
         return languageNameToId;
@@ -34,7 +34,7 @@ public class LanguagePersistence : LsquadPersistence, ILanguagePersistence
 
     public Dictionary<string, int> GetLanguagesNameToId(List<string> langs)
     {
-        Dictionary<string, int> languageNameToId = [];
+        Dictionary<string, int> languageNameToId = new();
         List<string> notInCacheLangs = [];
         foreach(string lang in langs) {
             if (LanguagesCache.ContainsKey(lang)) {
@@ -47,37 +47,37 @@ public class LanguagePersistence : LsquadPersistence, ILanguagePersistence
             return languageNameToId;
         }
 
-        List<LanguageEntity> languageEntities = GetLanguages(notInCacheLangs);
-        foreach(LanguageEntity languageEntity in languageEntities) {
-            languageNameToId[languageEntity.name] = languageEntity.id_language;
-            LanguagesCache[languageEntity.name] = languageEntity.id_language;
+        List<LanguageTransfer> languageTransfers = GetLanguages(notInCacheLangs);
+        foreach(LanguageTransfer languageTransfer in languageTransfers) {
+            languageNameToId[languageTransfer.name] = languageTransfer.id_language;
+            LanguagesCache[languageTransfer.name] = languageTransfer.id_language;
         }
 
         return languageNameToId;
     }
 
-    private List<LanguageEntity> CreateOrUpdateLanguagesByName(List<string> languages)
+    private List<LanguageTransfer> CreateOrUpdateLanguagesByName(List<string> languages)
     {
         string sql =
             $@"INSERT INTO lsquad_language (name) VALUES {ListToManyValues(languages)} " +
             "  ON CONFLICT (name) DO UPDATE SET name = excluded.name" +
             "  RETURNING *";
-        List<LanguageEntity> languageEntities = [];
+        List<LanguageTransfer> languageTransfers = [];
         foreach(string language in languages) {
-            LanguageEntity le = new() { name = language };
-            languageEntities.Add(le);
+            LanguageTransfer le = new() { name = language };
+            languageTransfers.Add(le);
         }
-        Console.WriteLine($"running {sql} with {languageEntities.Count} languageEntities");
+        Console.WriteLine($"running {sql} with {languageTransfers.Count} languageTransfers");
 
-        return GetConnection().Query<LanguageEntity>(sql).ToList();
+        return GetConnection().Query<LanguageTransfer>(sql).ToList();
     }
 
-    private List<LanguageEntity> GetLanguages(List<string> langs)
+    private List<LanguageTransfer> GetLanguages(List<string> langs)
     {
         const string sql = @"SELECT * FROM lsquad_language WHERE name = ANY(@langs)";
         var parameters = new { langs };
         Console.WriteLine($"running {sql} with {parameters}");
 
-        return GetConnection().Query<LanguageEntity>(sql, parameters).ToList();
+        return GetConnection().Query<LanguageTransfer>(sql, parameters).ToList();
     }
 }

@@ -7,9 +7,9 @@ namespace Lsquad.Player.Persistence;
 
 public class PlayerPersistence(IPlayerNameService playerNameService) : LsquadPersistence, IPlayerPersistence
 {
-    public void CreateOrUpdate(List<PlayerTransfer> playerEntities)
+    public void CreateOrUpdate(List<PlayerTransfer> playerTransfers)
     {
-        if (playerEntities.Count == 0) { return; }
+        if (playerTransfers.Count == 0) { return; }
         const string sql =
             @"INSERT INTO lsquad_player" +
             " (fk_team, external_player_id, weight, height, position, shirt_number, preferred_foot, version, full_name, first_name, last_name, country_code, birth_date, created_at) " +
@@ -18,29 +18,29 @@ public class PlayerPersistence(IPlayerNameService playerNameService) : LsquadPer
             " ON CONFLICT (external_player_id) DO UPDATE " +
             " set fk_team = @fk_team, external_player_id = @external_player_id, weight = @weight, height = @height, position = @position, shirt_number = @shirt_number, preferred_foot = @preferred_foot, version = @version, full_name = @full_name, first_name = @first_name, last_name = @last_name, country_code = @country_code, birth_date = @birth_date, updated_at = now() ";
 
-        Console.WriteLine($"running {sql} with {playerEntities.Count} playerEntities");
-        GetConnection().Execute(sql, playerEntities);
+        Console.WriteLine($"running {sql} with {playerTransfers.Count} playerTransfers");
+        GetConnection().Execute(sql, playerTransfers);
     }
 
-    public void CreateOrUpdateWithExternalId(List<PlayerTransfer> playerEntities)
+    public void CreateOrUpdateWithExternalId(List<PlayerTransfer> playerTransfers)
     {
-        if (playerEntities.Count == 0) { return; }
-        Dictionary<int, List<PlayerNameTransfer>> externalPlayerIdToNameEntities = [];
-        foreach (PlayerTransfer playerTransfer in playerEntities)
+        if (playerTransfers.Count == 0) { return; }
+        Dictionary<int, List<PlayerNameTransfer>> externalPlayerIdToNameTransfers = new();
+        foreach (PlayerTransfer playerTransfer in playerTransfers)
         {
-            externalPlayerIdToNameEntities[playerTransfer.external_player_id] = playerTransfer.playerNameEntities;
+            externalPlayerIdToNameTransfers[playerTransfer.external_player_id] = playerTransfer.playerNameTransfers;
         }
-        playerEntities = InsertIfNotExistsElseUpdateWithExternalId(playerEntities);
-        List<PlayerNameTransfer> playerNameEntities = [];
-        foreach (PlayerTransfer playerTransfer in playerEntities)
+        playerTransfers = InsertIfNotExistsElseUpdateWithExternalId(playerTransfers);
+        List<PlayerNameTransfer> playerNameTransfers = [];
+        foreach (PlayerTransfer playerTransfer in playerTransfers)
         {
-            foreach (PlayerNameTransfer playerNameEntity in externalPlayerIdToNameEntities[playerTransfer.external_player_id])
+            foreach (PlayerNameTransfer playerNameTransfer in externalPlayerIdToNameTransfers[playerTransfer.external_player_id])
             {
-                playerNameEntity.fk_player = playerTransfer.id_player;
+                playerNameTransfer.fk_player = playerTransfer.id_player;
             }
-            playerNameEntities.AddRange(externalPlayerIdToNameEntities[playerTransfer.external_player_id]);
+            playerNameTransfers.AddRange(externalPlayerIdToNameTransfers[playerTransfer.external_player_id]);
         }
-        playerNameService.CreateOrUpdate(playerNameEntities);
+        playerNameService.CreateOrUpdate(playerNameTransfers);
     }
 
     public List<PlayerTransferWithName> GetPlayersBy(int idTeam, List<int> idLanguages)
@@ -59,11 +59,11 @@ public class PlayerPersistence(IPlayerNameService playerNameService) : LsquadPer
         return GetConnection().Query<PlayerTransferWithName>(sql, parameters).ToList();
     }
 
-    private List<PlayerTransfer> InsertIfNotExistsElseUpdateWithExternalId(List<PlayerTransfer> playerEntities)
+    private List<PlayerTransfer> InsertIfNotExistsElseUpdateWithExternalId(List<PlayerTransfer> playerTransfers)
     {
         List<string> valuesWithBrackets = [];
         List<int> uniqueList = [];
-        foreach (PlayerTransfer playerTransfer in playerEntities)
+        foreach (PlayerTransfer playerTransfer in playerTransfers)
         {
             if (uniqueList.Contains(playerTransfer.external_player_id)) { continue; }
             valuesWithBrackets.Add("(" + playerTransfer.external_player_id.ToString() + ", now())");
@@ -75,7 +75,7 @@ public class PlayerPersistence(IPlayerNameService playerNameService) : LsquadPer
             "  ON CONFLICT (external_player_id) DO UPDATE SET updated_at = now() " +
             "  RETURNING *";
 
-        Console.WriteLine($"running {sql} with {playerEntities.Count} playerEntities");
+        Console.WriteLine($"running {sql} with {playerTransfers.Count} playerTransfers");
 
         return GetConnection().Query<PlayerTransfer>(sql).ToList();
     }

@@ -34,5 +34,5 @@ public class PlayerTransfer
 
     public DateTime? updated_at { get; set; }
 
-    public List<PlayerNameTransfer> playerNameEntities = [];
+    public List<PlayerNameTransfer> playerNameTransfers = [];
 }

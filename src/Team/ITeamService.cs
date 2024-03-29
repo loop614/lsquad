@@ -4,9 +4,9 @@ namespace Lsquad.Team;
 
 public interface ITeamService
 {
-    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamEntities);
+    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamTransfers);
 
-    public TeamTransfer CreateOrUpdateByExternalTeamId(TeamTransfer teamEntity);
+    public TeamTransfer CreateOrUpdateByExternalTeamId(TeamTransfer teamTransfer);
 
     public List<TeamIdName> GetTeamIdNameBy(int externalTeamId, List<int> idLanguages);
 }

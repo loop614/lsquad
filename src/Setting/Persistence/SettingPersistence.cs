@@ -23,8 +23,8 @@ public class SettingPersistence : LsquadPersistence, ISettingPersistence
         var parameters = new { names };
         List<SettingTransfer> settingList = GetConnection().Query<SettingTransfer>(sql, parameters).ToList();
 
-        foreach(SettingTransfer settingEntity in settingList) {
-            if (settingEntity.status != SettingConfig.GetStatusDone()) {
+        foreach(SettingTransfer settingTransfer in settingList) {
+            if (settingTransfer.status != SettingConfig.GetStatusDone()) {
                 return false;
             }
         }

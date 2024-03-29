@@ -12,7 +12,7 @@ public class PlayerNamePersistence : LsquadPersistence, IPlayerNamePersistence
             @"INSERT INTO lsquad_player_name(fk_language, fk_player, version, name, created_at) VALUES (@fk_language, @fk_player, @version, @name, now()) " +
             " ON CONFLICT (fk_player, fk_language) DO UPDATE " +
             " set name = @name, version = @version, updated_at = now() ";
-        Console.WriteLine($"running {sql} with {playerNames.Count} playerNameEntities");
+        Console.WriteLine($"running {sql} with {playerNames.Count} playerNameTransfers");
 
         GetConnection().Execute(sql, playerNames);
     }
