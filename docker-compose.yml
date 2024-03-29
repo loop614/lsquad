@@ -1,4 +1,3 @@
-version: '3'
 services:
   lsquad_postgres:
     image: postgres

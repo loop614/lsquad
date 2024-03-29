@@ -1,6 +1,6 @@
 namespace Lsquad.Player.Transfer;
 
-public class PlayerNameEntity
+public class PlayerNameTransfer
 {
     public int? id_player_name { get; set; }
 

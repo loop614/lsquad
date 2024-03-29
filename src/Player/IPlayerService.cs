@@ -1,8 +1,8 @@
 using Lsquad.Player.Transfer;
 
-namespace Lsquad.Player.Persistence;
+namespace Lsquad.Player;
 
-public interface IPlayerPersistence
+public interface IPlayerService
 {
     public void CreateOrUpdate(List<PlayerTransfer> playerEntities);
 

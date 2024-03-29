@@ -5,7 +5,7 @@ namespace Lsquad.Core.Persistence;
 
 class LsquadCoreDatabaseInit
 {
-    public async static Task InitTables(NpgsqlConnection con) {
+    public async static Task InitTables(NpgsqlConnection connection) {
         var sql = """
             CREATE TABLE IF NOT EXISTS
             lsquad_setting (
@@ -41,12 +41,12 @@ class LsquadCoreDatabaseInit
             CREATE TABLE IF NOT EXISTS
             lsquad_team (
                 id_team serial PRIMARY KEY,
-                external_team_id INTEGER NOT NULL,
-                UNIQUE(external_team_id),
+                externalTeamId INTEGER NOT NULL,
+                UNIQUE(externalTeamId),
                 created_at timestamp DEFAULT now(),
                 updated_at timestamp
             );
-            CREATE INDEX IF NOT EXISTS idx_lsquad_player_external_team_id ON lsquad_team(external_team_id);
+            CREATE INDEX IF NOT EXISTS idx_lsquad_player_externalTeamId ON lsquad_team(externalTeamId);
 
             CREATE TABLE IF NOT EXISTS
             lsquad_team_name (
@@ -101,6 +101,6 @@ class LsquadCoreDatabaseInit
             CREATE INDEX IF NOT EXISTS idx_lsquad_lsquad_player_name_name ON lsquad_player_name(name);
         """;
 
-        await con.ExecuteAsync(sql);
+        await connection.ExecuteAsync(sql);
     }
 }

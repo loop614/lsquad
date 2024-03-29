@@ -1,6 +1,6 @@
 namespace Lsquad.Player.Transfer;
 
-public class PlayerEntityWithName
+public class PlayerTransferWithName
 {
     public int id_player { get; set; }
 
@@ -40,5 +40,5 @@ public class PlayerEntityWithName
 
     public DateTime? updated_at { get; set; }
 
-    public List<PlayerNameEntity> playerNameEntities = [];
+    public List<PlayerNameTransfer> playerNameEntities = [];
 }

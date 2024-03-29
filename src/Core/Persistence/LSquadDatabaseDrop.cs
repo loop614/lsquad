@@ -5,7 +5,7 @@ namespace Lsquad.Core.Persistence;
 
 class LsquadCoreDatabaseClean
 {
-    public async static Task DropTables(NpgsqlConnection con) {
+    public async static Task DropTables(NpgsqlConnection connection) {
         var sql = """
             DROP TABLE IF EXISTS lsquad_setting;
             DROP TABLE IF EXISTS lsquad_player_name;
@@ -15,6 +15,6 @@ class LsquadCoreDatabaseClean
             DROP TABLE IF EXISTS lsquad_language;
         """;
 
-        await con.ExecuteAsync(sql);
+        await connection.ExecuteAsync(sql);
     }
 }

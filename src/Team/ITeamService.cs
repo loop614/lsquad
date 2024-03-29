@@ -1,10 +1,10 @@
 using Lsquad.Team.Transfer;
 
-namespace Lsquad.Team.Persistence;
+namespace Lsquad.Team;
 
-public interface ITeamPersistence
+public interface ITeamService
 {
-    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamEntity);
+    public void CreateOrUpdateByExternalTeamId(List<TeamTransfer> teamEntities);
 
     public TeamTransfer CreateOrUpdateByExternalTeamId(TeamTransfer teamEntity);
 

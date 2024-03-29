@@ -6,7 +6,7 @@ namespace Lsquad.PlayerName;
 
 public class PlayerNamePersistence : LsquadPersistence, IPlayerNamePersistence
 {
-    public void CreateOrUpdate(List<PlayerNameEntity> playerNames)
+    public void CreateOrUpdate(List<PlayerNameTransfer> playerNames)
     {
         const string sql =
             @"INSERT INTO lsquad_player_name(fk_language, fk_player, version, name, created_at) VALUES (@fk_language, @fk_player, @version, @name, now()) " +

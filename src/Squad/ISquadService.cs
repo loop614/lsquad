@@ -1,8 +1,8 @@
 using Lsquad.Squad.Transfer;
 
-namespace Lsquad.Squad.Domain;
+namespace Lsquad.Squad;
 
-public interface ISquadReader
+public interface ISquadService
 {
     public SquadResponse GetSquad(int externalTeamId, string lang);
 }

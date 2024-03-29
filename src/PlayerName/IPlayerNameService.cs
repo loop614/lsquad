@@ -2,7 +2,7 @@ using Lsquad.Player.Transfer;
 
 namespace Lsquad.PlayerName;
 
-public interface IPlayerNamePersistence
+public interface IPlayerNameService
 {
     public void CreateOrUpdate(List<PlayerNameTransfer> players);
 }

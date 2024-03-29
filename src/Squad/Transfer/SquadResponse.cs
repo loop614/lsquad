@@ -5,7 +5,7 @@ namespace Lsquad.Squad.Transfer;
 public class SquadResponse
 {
     [JsonPropertyName("team")]
-    public SquadResponseTeam team { get; set; }
+    public SquadResponseTeam team { get; set; } = new();
 
     [JsonPropertyName("players")]
     public List<SquadResponsePlayer> players { get; set; } = [];
@@ -20,7 +20,7 @@ public class SquadResponseTeam
     public int id;
 
     [JsonPropertyName("name")]
-    public string name;
+    public string name = string.Empty;
 }
 
 public class SquadResponsePlayer

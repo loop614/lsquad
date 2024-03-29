@@ -1,6 +1,6 @@
-namespace Lsquad.Setting.Persistence;
+namespace Lsquad.Setting;
 
-public interface ISettingPersistence
+public interface ISettingService
 {
     public int? GetStatusForSetting(string settingName);
 

@@ -1,8 +1,8 @@
 using Lsquad.TeamName.Transfer;
 
-namespace Lsquad.TeamName.Persistence;
+namespace Lsquad.TeamName;
 
-public interface ITeamNamePersistence
+public interface ITeamNameService
 {
     public void CreateOrUpdate(List<TeamNameTransfer> teamNames);
 

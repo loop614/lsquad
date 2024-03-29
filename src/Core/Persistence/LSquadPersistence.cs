@@ -4,54 +4,44 @@ namespace Lsquad.Core.Persistence;
 
 public class LsquadPersistence
 {
-    protected static int _connectionIndex;
+    private static int connectionIndex = 0;
 
-    protected static readonly int _connectionNumber = 10;
+    private static readonly NpgsqlConnection[] connections = new NpgsqlConnection[2];
 
-    static protected NpgsqlConnection[] _connections = [];
-
-    static protected bool _init = true;
+    private static bool init = true;
 
     public LsquadPersistence()
     {
-        if (_init) {
+        if (init)
+        {
             InitSqlConnections();
         }
-        _init = false;
+        init = false;
     }
 
-    private void InitSqlConnections()
+    private static void InitSqlConnections()
     {
-        _connections = new NpgsqlConnection[_connectionNumber];
-        for(int i = 0; i < _connectionNumber; i++) {
-            _connections[i] = new NpgsqlConnection("Host=localhost;Username=lsquad;Password=lsquad;Database=lsquad");
+        for (int i = 0; i < connections.Length; i++)
+        {
+            connections[i] = new NpgsqlConnection("Host=localhost;Username=lsquad;Password=lsquad;Database=lsquad");
         }
     }
 
     protected NpgsqlConnection GetConnection()
     {
-        if (_connectionIndex + 1 > _connections.Count() - 1) {
-            _connectionIndex = 0;
+        if (connectionIndex + 1 > connections.Length - 1) {
+            connectionIndex = 0;
         }
 
-        return _connections[_connectionIndex++];
+        return connections[connectionIndex];
     }
 
-    protected string ListToManyValues(List<string> values)
+    protected string ListToManyValues<T>(List<T> values)
     {
         List<string> valuesWithBrackets = [];
-        foreach(string value in values) {
+        foreach (T value in values)
+        {
             valuesWithBrackets.Add("('" + value + "')");
-        }
-
-        return String.Join(", ", valuesWithBrackets);
-    }
-
-    protected string ListToManyValues(List<int> values)
-    {
-        List<string> valuesWithBrackets = [];
-        foreach(int value in values) {
-            valuesWithBrackets.Add("(" + value.ToString() + ")");
         }
 
         return String.Join(", ", valuesWithBrackets);

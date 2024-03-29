@@ -6,25 +6,25 @@ namespace Lsquad.Setting.Persistence;
 
 public class SettingPersistence : LsquadPersistence, ISettingPersistence
 {
-    public int GetStatusForSetting(string settingName)
+    public int? GetStatusForSetting(string settingName)
     {
         const string sql = @"SELECT * FROM lsquad_setting WHERE name = @settingName";
         var parameters = new { settingName };
         Console.WriteLine($"running {sql} with {parameters}");
-        var response = GetConnection().QueryFirst<SettingEntity>(sql, parameters);
+        var response = GetConnection().QueryFirst<SettingTransfer>(sql, parameters);
 
-        return response?.status ?? 0;
+        return response?.status;
     }
 
     public bool AreAllStatusesReady()
     {
         const string sql = @"SELECT * FROM lsquad_setting WHERE name = ANY (@names)";
-        List<string> names = new List<string>() {"br_domain_player", "br_domain_team", "br_domain_squad"};
+        List<string> names = ["br_domain_player", "br_domain_team", "br_domain_squad"];
         var parameters = new { names };
-        List<SettingEntity> settingList = GetConnection().Query<SettingEntity>(sql, parameters).ToList();
+        List<SettingTransfer> settingList = GetConnection().Query<SettingTransfer>(sql, parameters).ToList();
 
-        foreach(SettingEntity settingEntity in settingList) {
-            if (settingEntity.status == 0) {
+        foreach(SettingTransfer settingEntity in settingList) {
+            if (settingEntity.status != SettingConfig.GetStatusDone()) {
                 return false;
             }
         }

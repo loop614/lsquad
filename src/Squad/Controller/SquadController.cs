@@ -6,28 +6,18 @@ namespace Lsquad.Squad.Controller;
 
 [Route("api/squad/")]
 [ApiController]
-public class SquadController : ControllerBase
+public class SquadController(ISquadService squadService, ISettingService settingService) : ControllerBase
 {
-    private readonly ISquadFacade _facade;
-
-    private readonly ISettingFacade _settingFacade;
-
-    public SquadController()
-    {
-        _facade = new SquadFacade();
-        _settingFacade = new SettingFacade();
-    }
-
-    [Route("{external_team_id}/{lang}")]
-    public SquadResponse Squad(int external_team_id, string? lang)
+    [Route("{externalTeamId}/{lang}")]
+    public SquadResponse Squad(int externalTeamId, string? lang)
     {
         lang ??= "en";
-        if(_settingFacade.AreAllStatusesReady()) {
-            return _facade.GetSquad(external_team_id, lang);
+        if(settingService.AreAllStatusesReady()) {
+            return squadService.GetSquad(externalTeamId, lang);
         }
 
         var res = new SquadResponse();
-        res.errors.Add("Data Import still in progress");
+        res.errors.Add("Data Import still in progress. Please wait...");
 
         return res;
     }
