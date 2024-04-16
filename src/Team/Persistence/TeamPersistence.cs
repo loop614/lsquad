@@ -60,7 +60,7 @@ public class TeamPersistence(ITeamNameService teamNameService) : LsquadPersisten
         var parameters = new { fk_languages = idLanguages, externalTeamId = externalTeamId };
         Console.WriteLine($"running {sql} with {parameters}");
 
-        return GetConnection().Query<TeamIdName>(sql, parameters).ToList();
+        return GetReadConnection().Query<TeamIdName>(sql, parameters).ToList();
     }
 
     private List<TeamTransfer> InsertIfNotExistsElseUpdateWithExternalId(List<TeamTransfer> teamTransfers)

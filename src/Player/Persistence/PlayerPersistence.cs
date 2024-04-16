@@ -56,7 +56,7 @@ public class PlayerPersistence(IPlayerNameService playerNameService) : LsquadPer
         var parameters = new { fk_team = idTeam, fk_language = idLanguages };
         Console.WriteLine($"running {sql} with {parameters}");
 
-        return GetConnection().Query<PlayerTransferWithName>(sql, parameters).ToList();
+        return GetReadConnection().Query<PlayerTransferWithName>(sql, parameters).ToList();
     }
 
     private List<PlayerTransfer> InsertIfNotExistsElseUpdateWithExternalId(List<PlayerTransfer> playerTransfers)

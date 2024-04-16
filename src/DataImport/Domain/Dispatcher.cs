@@ -183,17 +183,17 @@ public class Dispatcher(
         {
             case "br_domain_squad":
                 playerService.CreateOrUpdate(playerTransfersCache);
-                playerTransfersCache = [];
+                playerTransfersCache.Clear();
                 break;
 
             case "br_domain_player":
                 playerService.CreateOrUpdateWithExternalId(playerTransfersWithExternalIdCache);
-                playerTransfersWithExternalIdCache = [];
+                playerTransfersWithExternalIdCache.Clear();
                 break;
 
             case "br_domain_team":
                 teamService.CreateOrUpdateByExternalTeamId(teamTransfersWithExternalIdCache);
-                teamTransfersWithExternalIdCache = [];
+                teamTransfersWithExternalIdCache.Clear();
                 break;
 
             default:

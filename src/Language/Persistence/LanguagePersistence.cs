@@ -78,6 +78,17 @@ public class LanguagePersistence : LsquadPersistence, ILanguagePersistence
         var parameters = new { langs };
         Console.WriteLine($"running {sql} with {parameters}");
 
-        return GetConnection().Query<LanguageTransfer>(sql, parameters).ToList();
+        return GetReadConnection().Query<LanguageTransfer>(sql, parameters).ToList();
+    }
+
+    private static string ListToManyValues<T>(List<T> values)
+    {
+        List<string> valuesWithBrackets = [];
+        foreach (T value in values)
+        {
+            valuesWithBrackets.Add("('" + value + "')");
+        }
+
+        return String.Join(", ", valuesWithBrackets);
     }
 }

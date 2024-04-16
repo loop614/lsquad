@@ -6,16 +6,13 @@ public class LsquadPersistence
 {
     private static int connectionIndex = 0;
 
-    private static readonly NpgsqlConnection[] connections = new NpgsqlConnection[2];
+    private static readonly NpgsqlConnection[] connections = new NpgsqlConnection[3];
 
     private static bool init = true;
 
     public LsquadPersistence()
     {
-        if (init)
-        {
-            InitSqlConnections();
-        }
+        if (init) InitSqlConnections();
         init = false;
     }
 
@@ -29,21 +26,16 @@ public class LsquadPersistence
 
     protected NpgsqlConnection GetConnection()
     {
-        if (connectionIndex + 1 > connections.Length - 1) {
+        if (connectionIndex + 1 > connections.Length - 2)
+        {
             connectionIndex = 0;
         }
 
         return connections[connectionIndex];
     }
 
-    protected string ListToManyValues<T>(List<T> values)
+    protected NpgsqlConnection GetReadConnection()
     {
-        List<string> valuesWithBrackets = [];
-        foreach (T value in values)
-        {
-            valuesWithBrackets.Add("('" + value + "')");
-        }
-
-        return String.Join(", ", valuesWithBrackets);
+        return connections[^1];
     }
 }

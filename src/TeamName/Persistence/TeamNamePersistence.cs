@@ -24,6 +24,6 @@ public class TeamNamePersistence : LsquadPersistence, ITeamNamePersistence
         var parameters = new { idTeam, idLanguage };
         Console.WriteLine($"running {sql} with {parameters}");
 
-        return GetConnection().QueryFirst<TeamNameTransfer>(sql, parameters).name;
+        return GetReadConnection().QueryFirst<TeamNameTransfer>(sql, parameters).name;
     }
 }

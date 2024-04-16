@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Lsquad.Setting;
 using Lsquad.DataImport.Transfer;
+using System.Diagnostics;
 
 namespace Lsquad.DataImport.Domain;
 
@@ -8,16 +9,14 @@ public class Importer(IDispatcher dispatcher, ISettingService settingService) : 
 {
     public void ImportExample()
     {
-        List<BrDomainPlayer> brDomainPlayers = [];
-        List<BrDomainSquad> brDomainSquads = [];
-        List<BrDomainTeam> brDomainTeams = [];
-
+        Stopwatch sw = new();
+        sw.Start();
         var linesPlayer = File.ReadAllLines(@"./src/DataImport/ExampleData/br_domain_player.txt");
         for (var i = 0; i < linesPlayer.Length; i += 1)
         {
             BrDomainPlayer? brPlayer = JsonConvert.DeserializeObject<BrDomainPlayer>(linesPlayer[i]);
             if (brPlayer is null) { continue; }
-            brDomainPlayers.Add(brPlayer);
+            dispatcher.Dispatch(brPlayer);
         }
 
         var linesTeam = File.ReadAllLines(@"./src/DataImport/ExampleData/br_domain_team.txt");
@@ -25,7 +24,7 @@ public class Importer(IDispatcher dispatcher, ISettingService settingService) : 
         {
             BrDomainTeam? brTeam = JsonConvert.DeserializeObject<BrDomainTeam>(linesTeam[i]);
             if (brTeam is null) { continue; }
-            brDomainTeams.Add(brTeam);
+            dispatcher.Dispatch(brTeam);
         }
 
         var linesSquad = File.ReadAllLines(@"./src/DataImport/ExampleData/br_domain_squad.txt");
@@ -33,22 +32,7 @@ public class Importer(IDispatcher dispatcher, ISettingService settingService) : 
         {
             BrDomainSquad? brSquad = JsonConvert.DeserializeObject<BrDomainSquad>(linesSquad[i]);
             if (brSquad is null) { continue; }
-            brDomainSquads.Add(brSquad);
-        }
-
-        foreach (var brDomainPlayer in brDomainPlayers)
-        {
-            dispatcher.Dispatch(brDomainPlayer);
-        }
-
-        foreach (var brDomainTeam in brDomainTeams)
-        {
-            dispatcher.Dispatch(brDomainTeam);
-        }
-
-        foreach (var brDomainSquad in brDomainSquads)
-        {
-            dispatcher.Dispatch(brDomainSquad);
+            dispatcher.Dispatch(brSquad);
         }
 
         dispatcher.FlushCache("br_domain_squad");
@@ -58,5 +42,7 @@ public class Importer(IDispatcher dispatcher, ISettingService settingService) : 
         settingService.SetStatus("br_domain_player", SettingConfig.GetStatusDone());
         settingService.SetStatus("br_domain_team", SettingConfig.GetStatusDone());
         settingService.SetStatus("br_domain_squad", SettingConfig.GetStatusDone());
+        sw.Stop();
+        Console.WriteLine("ImportExample Elapsed={0}",sw.Elapsed);
     }
 }

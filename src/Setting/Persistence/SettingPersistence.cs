@@ -11,7 +11,7 @@ public class SettingPersistence : LsquadPersistence, ISettingPersistence
         const string sql = @"SELECT * FROM lsquad_setting WHERE name = @settingName";
         var parameters = new { settingName };
         Console.WriteLine($"running {sql} with {parameters}");
-        var response = GetConnection().QueryFirst<SettingTransfer>(sql, parameters);
+        var response = GetReadConnection().QueryFirst<SettingTransfer>(sql, parameters);
 
         return response?.status;
     }
@@ -21,7 +21,7 @@ public class SettingPersistence : LsquadPersistence, ISettingPersistence
         const string sql = @"SELECT * FROM lsquad_setting WHERE name = ANY (@names)";
         List<string> names = ["br_domain_player", "br_domain_team", "br_domain_squad"];
         var parameters = new { names };
-        List<SettingTransfer> settingList = GetConnection().Query<SettingTransfer>(sql, parameters).ToList();
+        List<SettingTransfer> settingList = GetReadConnection().Query<SettingTransfer>(sql, parameters).ToList();
 
         foreach(SettingTransfer settingTransfer in settingList) {
             if (settingTransfer.status != SettingConfig.GetStatusDone()) {

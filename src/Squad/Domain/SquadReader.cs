@@ -47,8 +47,7 @@ public class SquadReader(
         Dictionary<int, string> languageToTeamName = new();
         foreach (TeamIdName teamIdName in teamIdNames)
         {
-            if (teamIdName.name is null) { continue; }
-            languageToTeamName[teamIdName.fk_language] = teamIdName.name;
+            languageToTeamName[teamIdName.fk_language] = teamIdName.name!;
         }
 
         if (langNameToId.ContainsKey(lang) && languageToTeamName.TryGetValue(langNameToId[lang], out string? value))
